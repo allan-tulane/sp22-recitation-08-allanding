@@ -1,13 +1,16 @@
 from collections import defaultdict
 
 def make_undirected_graph(edge_list):
-    """ Makes an undirected graph from a list of edge tuples. """
+    """ Makes an undirected graph from a list of edge tuples. """    
     graph = defaultdict(set)
     for e in edge_list:
         graph[e[0]].add(e[1])
         graph[e[1]].add(e[0])
     return graph
 
+graph = make_undirected_graph([('A', 'B'), ('B', 'C'), ('C', 'D'), ('D', 'B'), ('E', 'F'), ('F', 'G')])
+
+print(graph)
 
 def reachable(graph, start_node):
     """
@@ -18,23 +21,31 @@ def reachable(graph, start_node):
     frontier = set([start_node])
     while len(frontier) != 0:
         ###TODO
-        pass
+        print('frontier', frontier)
+        node = frontier.pop()
+        print('visiting', node)
+        result.add(node)  # "visit" node
+        for ni in graph[node]:
+            if ni not in result:
+                frontier.add(ni)
     return result
+
+print(reachable(graph, 'C'))
 
 def test_reachable():
     graph = make_undirected_graph([('A', 'B'), ('B', 'C'), ('C', 'D'), ('D', 'B')])
     assert sorted(reachable(graph, 'A')) == ['A', 'B', 'C', 'D']
-
     graph = make_undirected_graph([('A', 'B'), ('B', 'C'), ('C', 'D'), ('D', 'B'), ('E', 'F'), ('F', 'G')])
     assert sorted(reachable(graph, 'A')) == ['A', 'B', 'C', 'D']
     assert sorted(reachable(graph, 'E')) == ['E', 'F', 'G']
 
-
-
+test_reachable()
 
 def connected(graph):
     ### TODO
-    pass
+    n_nodes = len(graph)
+    r = reachable(graph, list(graph.keys())[0])
+    return len(r) == n_nodes
 
 def test_connected():
     graph = make_undirected_graph([('A', 'B'), ('B', 'C'), ('C', 'D'), ('D', 'B')])
@@ -42,15 +53,21 @@ def test_connected():
     graph = make_undirected_graph([('A', 'B'), ('B', 'C'), ('C', 'D'), ('D', 'B'), ('E', 'F'), ('F', 'G')])
     assert connected(graph) == False
 
-
+test_connected()
 
 def n_components(graph):
     """
     Returns:
       the number of connected components in an undirected graph
     """
-    ### TODO
-    pass
+    results = []
+    tovisit = set(list(graph.keys()))
+    while len(tovisit) > 0:
+        n = tovisit.pop()
+        r = reachable(graph, n)
+        tovisit = tovisit - r
+        results.append(r)
+    return len(results)
 
 def test_n_components():
     graph = make_undirected_graph([('A', 'B'), ('B', 'C'), ('C', 'D'), ('D', 'B')])
@@ -58,3 +75,5 @@ def test_n_components():
 
     graph = make_undirected_graph([('A', 'B'), ('B', 'C'), ('C', 'D'), ('D', 'B'), ('E', 'F'), ('F', 'G')])
     assert n_components(graph) == 2
+
+test_n_components()
